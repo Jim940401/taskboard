@@ -6,8 +6,9 @@
 // react 的 useState：用於管理組件的狀態
 // TaskList：自定義的任務列表組件
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
 import TaskList from "@/components/TaskList";
+import Link from "next/link";
 
 // 定義並導出首頁組件
 export default function Home() {
@@ -20,17 +21,32 @@ export default function Home() {
   // setNewTask：用於更新 newTask 的函數
   const [newTask, setNewTask] = useState('');
 
+  const [nextId, setNextId] = useState(1);
+
+  useEffect(() => {
+    const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    setTasks(savedTasks);
+    const maxId = savedTasks.reduce((max, task) => Math.max(max, task.id), 0);
+    setNextId(maxId + 1)
+  }, []);
+
   // 定義添加任務的函數
   const addTask = () => {
     // 調試用：印出添加任務前的任務列表
     console.log("Before:", tasks);
     // 調試用：印出當前要添加的新任務
     console.log("Now:", newTask);
+
+    const newTaskObj = {
+      id: nextId,
+      title: newTask,
+      description: '',
+    };
     
     // 創建新的任務陣列：
     // ...tasks：展開運算符，複製原有的所有任務
     // newTask：將新任務加入陣列末尾
-    const updatedTasks = [...tasks, newTask];
+    const updatedTasks = [...tasks, newTaskObj];
     
     // 使用 setTasks 更新任務列表
     setTasks(updatedTasks);
@@ -40,12 +56,22 @@ export default function Home() {
     
     // 清空輸入框（將 newTask 設為空字串）
     setNewTask('');
+
+    setNextId(nextId + 1);
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+  };
+
+  const handleDelete = (index) => {
+    const newTasks = tasks.filter((_, i) => i !== index);
+    setTasks(newTasks);
+    localStorage.setItem("tasks", JSON.stringify(newTasks));
   }
+
 
   // 返回要渲染的 JSX
   return (
     // main 容器，設置內邊距為 4 單位
-    <main className="p-4">
+    <main className="p-4 max-w-md mx-auto">
       {/* 標題：使用大號字體和粗體 */}
       <h1 className="text-2xl font-bold">Task Board</h1>
 
@@ -77,7 +103,7 @@ export default function Home() {
       </div>
 
       {/* 渲染任務列表組件，將 tasks 陣列作為屬性傳遞 */}
-      <TaskList tasks={tasks}/>
+      <TaskList tasks={tasks} onDelete={handleDelete}/>
 
     </main>
   );
