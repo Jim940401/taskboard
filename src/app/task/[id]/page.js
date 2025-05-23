@@ -1,11 +1,12 @@
 'use client';
 
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function TaskDetail({params}) {
+export default function TaskDetail() {
+    const params = useParams();
+    const { id } = params;
     const router = useRouter();
-    const [ id ] = params;
     const [ title, setTitle ] = useState('');
     const [ description, setDescription ] = useState('');
 
@@ -16,14 +17,14 @@ export default function TaskDetail({params}) {
         );
         localStorage.setItem("tasks", JSON.stringify(updatedTasks));
         router.push("/")
-    } 
+    };
 
     useEffect(() => {
         const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
         const task = savedTasks.find((t) => t.id === Number(id));
         if (task) {
-            setTitle(task,title);
-            setDescription(task,description);
+            setTitle(task.title);
+            setDescription(task.description);
         }
     }, [id]);
 
@@ -54,5 +55,5 @@ export default function TaskDetail({params}) {
                 Save
             </button>
         </main>
-    )
+    );
 }

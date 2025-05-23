@@ -61,8 +61,8 @@ export default function Home() {
     localStorage.setItem("tasks", JSON.stringify(updatedTasks));
   };
 
-  const handleDelete = (index) => {
-    const newTasks = tasks.filter((_, i) => i !== index);
+  const handleDelete = (deletedId) => {
+    const newTasks = tasks.filter((task) => task.id !== deletedId);
     setTasks(newTasks);
     localStorage.setItem("tasks", JSON.stringify(newTasks));
   }
